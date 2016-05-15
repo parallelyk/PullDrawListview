@@ -9,7 +9,7 @@ public class MainActivity extends AppCompatActivity {
     private PullDragListview pullDragListview;
     private ListView listView;
     ArrayAdapter<String> adapter;
-    String[] items = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+    String[] items = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L","A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

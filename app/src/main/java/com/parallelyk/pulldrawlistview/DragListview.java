@@ -8,13 +8,13 @@ import android.widget.ListView;
 /**
  * Created by YK on 2016/5/13.
  */
-public class PullDragListviewCore extends ListView {
+public class DragListview extends ListView {
 
-    public PullDragListviewCore(Context context) {
+    public DragListview(Context context) {
         super(context);
     }
 
-    public PullDragListviewCore(Context context, AttributeSet attrs) {
+    public DragListview(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

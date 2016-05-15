@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Scroller;
 
 /**
  * Created by YK on 2016/5/13.
@@ -18,11 +19,13 @@ public class PullDragListview extends LinearLayout {
     private View mHeadLinearlayout ;
     private int mHeadOffSet;
     private MarginLayoutParams marginLayoutParams;
-
+    private Scroller mScroller;
     private ListView mListView;
 
     private float mLastX ,mLastY;
     private boolean mPullable;
+    private boolean isFirstLayout = true;
+    private boolean isTop = false;
     private float mDownY;
 
 
@@ -52,10 +55,13 @@ public class PullDragListview extends LinearLayout {
     private void init(){
         mHeadLinearlayout = LayoutInflater.from(mContext).inflate(R.layout.pulldown_head,null,true);
 
+//        mHeadLinearlayout.setClickable(false);
+//        mHeadLinearlayout.setFocusable(false);
+//        mHeadLinearlayout.setLongClickable(false);
         mPullable =true;
 
         currentState = STATE_PREPEARTOREFRESH;
-
+        mScroller = new Scroller(mContext);
 
         setOrientation(VERTICAL);
         addView(mHeadLinearlayout, 0);
@@ -67,7 +73,7 @@ public class PullDragListview extends LinearLayout {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
-        if(changed){
+        if(isFirstLayout && changed){
             mHeadOffSet = -mHeadLinearlayout.getHeight();
             marginLayoutParams = (MarginLayoutParams) mHeadLinearlayout.getLayoutParams();
             marginLayoutParams.topMargin = mHeadOffSet;
@@ -75,6 +81,7 @@ public class PullDragListview extends LinearLayout {
 
             mListView = (ListView) getChildAt(1);
 
+            isFirstLayout = false;
         }
 
     }
@@ -100,8 +107,14 @@ public class PullDragListview extends LinearLayout {
                 intercept = false;
                 break;
             case MotionEvent.ACTION_MOVE:
-                float deltaX = x-mLastX;
-                float deltaY = y-mLastY;
+                float deltaX = x -mLastX;
+                float deltaY = y -mLastY;
+
+
+                if( isTop && deltaY <= 0  ){
+                    return false;
+                }
+                //当处于可下拉状态 且 手指向下滑动的时候，拦截事件 ，执行下拉
                 if(mPullable && Math.abs(deltaY)>Math.abs(deltaX)){
                     intercept = true;
                 }
@@ -109,9 +122,7 @@ public class PullDragListview extends LinearLayout {
                     intercept = false;
                 }
                 break;
-            case MotionEvent.ACTION_UP:
-                intercept = false;
-                break;
+
             default:
                 break;
 
@@ -123,7 +134,8 @@ public class PullDragListview extends LinearLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
+        float x =  event.getRawX();
+        float y =  event.getRawY();
         if(mPullable){
             switch (event.getAction()){
                 case MotionEvent.ACTION_DOWN:
@@ -131,12 +143,25 @@ public class PullDragListview extends LinearLayout {
                     break;
                 case MotionEvent.ACTION_MOVE:
 
-                    int distance = (int) (event.getRawY()-mDownY);
+                    int distance = (int) (y-mDownY);
                     if(distance<0){
 
                     }
-                    if(mPullable ){
+                    if( mPullable ){
+                        if( marginLayoutParams.topMargin < 0 ){
+                            currentState = STATE_PULLTOREFRESH;
+                        }
+                        else{
+                            currentState = STATE_RELEASETOREFRESH;
+                        }
                         marginLayoutParams.topMargin = distance/2 + mHeadOffSet;
+                        if(marginLayoutParams.topMargin < mHeadOffSet){
+                            marginLayoutParams.topMargin = mHeadOffSet;
+                            isTop = true;
+                        }
+                        else{
+                            isTop = false;
+                        }
                         mHeadLinearlayout.setLayoutParams(marginLayoutParams);
                     }
 
@@ -144,7 +169,9 @@ public class PullDragListview extends LinearLayout {
 
                     break;
                 case MotionEvent.ACTION_UP:
-
+                    if(currentState == STATE_PULLTOREFRESH){
+                        mScroller.startScroll(0,-marginLayoutParams.topMargin ,0,marginLayoutParams.topMargin-mHeadOffSet,500);
+                    }
                     break;
                 default:
                     break;
@@ -153,5 +180,12 @@ public class PullDragListview extends LinearLayout {
         }
 
         return super.onTouchEvent(event);
+    }
+
+    /**
+     * 测试是该下拉还是滚动Listview
+     */
+    private void checkPullable(){
+
     }
 }
