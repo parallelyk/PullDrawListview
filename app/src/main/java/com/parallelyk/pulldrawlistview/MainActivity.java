@@ -16,8 +16,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         pullDragListview = (PullDragListview) findViewById(R.id.pdlistvew);
-        listView = (ListView) findViewById(R.id.listview);
+        //listView = (ListView) findViewById(R.id.listview);
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
-        listView.setAdapter(adapter);
+        pullDragListview.setAdapter(adapter);
     }
 }
