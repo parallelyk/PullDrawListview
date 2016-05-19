@@ -15,7 +15,7 @@
     /**隐藏在后面的删除/
     <LinearLayout
         android:id="@+id/hide_view"
-        android:layout_width="match_parent"
+        android:layout_width="120dp"
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:background="@android:color/holo_red_dark"
@@ -23,11 +23,13 @@
 
         <TextView
             android:id="@+id/hide_delete"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
             android:gravity="center"
-
             android:text="删除"
+            android:textSize="20sp"
             />
     </LinearLayout>
 </merge>

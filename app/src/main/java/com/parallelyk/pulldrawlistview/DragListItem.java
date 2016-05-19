@@ -2,6 +2,7 @@ package com.parallelyk.pulldrawlistview;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -27,6 +28,8 @@ public class DragListItem extends LinearLayout {
     private int mDragOutWidth;//完全侧滑出来的距离
     private double mfraction = 0.75;//触发自动侧滑的临界点
 
+    private boolean isDrag = false;
+
 
     public DragListItem(Context context) {
         super(context);
@@ -47,7 +50,7 @@ public class DragListItem extends LinearLayout {
         mContentView = (LinearLayout) mHidenDragView.findViewById(R.id.show_content_view);
         mHidenLayout = (LinearLayout) mHidenDragView.findViewById(R.id.hide_view);
         mScroller = new Scroller(mContext);
-        mDragOutWidth = 120;
+        mDragOutWidth = 300;
 
 
 
@@ -61,12 +64,15 @@ public class DragListItem extends LinearLayout {
      */
     public void onDragTouchEvent(MotionEvent event){
 
+        Log.d(TAG,"onDragTouchEvent");
         int x = (int) event.getX();
         int y = (int) event.getY();
         int scrollX = getScrollX();//手机屏幕左上角x轴的值 - view的左上角x轴的值
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-
+//                if (!mScroller.isFinished()) {
+//                    mScroller.abortAnimation();
+//                }
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -76,6 +82,8 @@ public class DragListItem extends LinearLayout {
                     break;
 
                 if(deltaX != 0){//手指横向滑动
+                    isDrag = true;
+                   // mContentView.setClickable(false);
                     int newScrollX = scrollX - deltaX;//当这个值变小时，view视图向左滑动
                     if(newScrollX<0){//保持大于等于0，等于0时view左上角x值和屏幕左上角x值重合
                         newScrollX = 0;
@@ -94,8 +102,15 @@ public class DragListItem extends LinearLayout {
                 int finalScrollX = 0;
                 if(scrollX > mDragOutWidth*mfraction){//左滑到足够自动滑动的位置了，否则回缩
                     finalScrollX = mDragOutWidth;
+
+                    autoScrollToX(finalScrollX,500);
                 }
-                autoScrollToX(finalScrollX);
+                else {
+                    rollBack();
+                    isDrag = false;
+                    //mContentView.setClickable(true);
+                }
+
                 break;
 
         }
@@ -105,12 +120,15 @@ public class DragListItem extends LinearLayout {
     }
 
 
-    private void autoScrollToX(int finalX){
-        mScroller.startScroll(getScrollX(),0,finalX-getScrollX(),0,500);
+    private void autoScrollToX(int finalX,int duration){
+        mScroller.startScroll(getScrollX(),0,finalX-getScrollX(),0,duration);
         invalidate();
     }
 
 
+    public boolean getDragState(){
+        return isDrag;
+    }
     @Override
     public void computeScroll() {
         if(mScroller.computeScrollOffset()){
@@ -118,7 +136,8 @@ public class DragListItem extends LinearLayout {
             postInvalidate();
         }
 
-        super.computeScroll();
+
+
     }
 
     /**
@@ -149,7 +168,9 @@ public class DragListItem extends LinearLayout {
 
     public void rollBack(){
         if(getScrollX() != 0){
-            autoScrollToX(0);
+            autoScrollToX(0,100);
+            Log.d(TAG,"roooooollback");
+
         }
     }
 }
