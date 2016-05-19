@@ -3,6 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    /** 实际显示的内容/
     <LinearLayout
         android:id="@+id/show_content_view"
         android:layout_width="match_parent"
@@ -11,6 +12,7 @@
         >
     </LinearLayout>
 
+    /**隐藏在后面的删除/
     <LinearLayout
         android:id="@+id/hide_view"
         android:layout_width="match_parent"

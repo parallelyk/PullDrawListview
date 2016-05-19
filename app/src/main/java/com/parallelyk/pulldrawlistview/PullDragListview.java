@@ -133,6 +133,13 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
                         setAndUpdate(STATE_INIT);
                         isRefreshing =false;
                     }
+                    //检测侧滑
+                    int position = pointToPosition((int)event.getX(),(int)event.getY());
+                    Log.d(TAG,"position"+position);
+                    if(position != INVALID_POSITION){//选中列表中的某一项dragListItem
+                        mDragView = (DragListItem) getItemAtPosition(position);
+
+                    }
                     break;
                 case MotionEvent.ACTION_MOVE:
 
@@ -141,13 +148,7 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
                     if(getFirstVisiblePosition() == 0
                             && (deltaY>0 || mHeadView.getHeadHeight()>0) ){
                         //listview正好在顶部 或者 已经被往下拉了（考虑往下拉了一点又往回退的情况）
-
-
-                        // Math.abs(deltaY)> touchSlop
-
                         mHeadView.setHeadHeight(deltaY);
-
-
                         setSelection(0);//在touch模式下，会让listview滚动到0位置，保证了Head头部的正常缩放，不受scroller影响
                         if(currentState == STATE_REFRESHING ||currentState == STATE_FINISHREFRESH){
                             mDownY = y;
