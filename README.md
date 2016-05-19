@@ -1,2 +1,3 @@
 # PullDrawListview
-ListView结合下拉刷新+侧滑删除(未完成)
+ListView结合下拉刷新+侧滑删除(v1.0) 
+仿照QQ首页
