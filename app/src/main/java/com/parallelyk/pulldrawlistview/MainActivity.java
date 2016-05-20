@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -122,42 +120,43 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             //HashMap<String,Object> tmpHashMap = new HashMap<>();
             hashMap.put("view", dragListItem);
 
-            viewHolder.showItem.setOnTouchListener(new View.OnTouchListener() {//使用OnItemClick或OnClickListener的话会造成冲突
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    boolean consume = false;
-                    float x = 0, y = 0;
-                    Log.d("aa","in");
-
-                    switch (event.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            x = event.getX();
-                            y = event.getY();
-                            consume = true;
-                            Log.d("aa","indown");
-                            break;
-                        case MotionEvent.ACTION_MOVE:
-                            Log.d("aa","ACTION_MOVE");
-                            if (Math.abs(event.getX() - x) > ViewConfiguration.get(mContext).getScaledTouchSlop()|| Math.abs(event.getY() - y) > ViewConfiguration.get(mContext).getScaledTouchSlop()) {
-                                Log.d("aa","flase");
-                                consume = false;
-                            } else {
-                                Log.d("aa","true");
-                                consume = true;
-                            }
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            Log.d("aa","ACTION_UP");
-                            if (consume) {
-                                Toast.makeText(mContext, "hahahhahah", Toast.LENGTH_SHORT).show();
-                            }
-                            break;
-
-                    }
-
-                    return false;
-                }
-            });
+//            viewHolder.showItem.setOnTouchListener(new View.OnTouchListener() {//使用OnItemClick或OnClickListener的话会造成冲突
+//                @Override
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    boolean consume = false;
+//                    float x = 0, y = 0;
+//                    Log.d("aa","in");
+//
+//                    switch (event.getAction()) {
+//                        case MotionEvent.ACTION_DOWN:
+//                            x = event.getX();
+//
+//                            y = event.getY();
+//                            consume = true;
+//
+//                            break;
+//                        case MotionEvent.ACTION_MOVE:
+//                            Log.d("aa","ACTION_MOVE");
+//                            if (Math.abs(event.getX() - x) > ViewConfiguration.get(mContext).getScaledTouchSlop()|| Math.abs(event.getY() - y) > ViewConfiguration.get(mContext).getScaledTouchSlop()) {
+//
+//                                consume = false;
+//                            } else {
+//
+//                                consume = true;
+//                            }
+//                            break;
+//                        case MotionEvent.ACTION_UP:
+//                            Log.d("aa","ACTION_UP");
+//                            if (consume) {
+//                                Toast.makeText(mContext, "hahahhahah", Toast.LENGTH_SHORT).show();
+//                            }
+//                            break;
+//
+//                    }
+//
+//                    return false;
+//                }
+//            });
             viewHolder.hideItem.setOnClickListener(new View.OnClickListener() {//给显示的Item设置点击事件
                 @Override
                 public void onClick(View v) {
