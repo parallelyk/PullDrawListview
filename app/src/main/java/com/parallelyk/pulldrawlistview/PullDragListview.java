@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.ListView;
@@ -31,12 +32,12 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
     private boolean isDrag = false;
     private boolean isPull = false;
 
-    private float mDownY;
+    private float mDownY,mDownX;
 
 
     private int mPosition;
     private int mRefreshHeight;//触发刷新的高度
-
+    private int mTouchSlop;
 
 
     private int mFraction;//下拉的速度
@@ -72,7 +73,7 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
         addHeaderView(mHeadView);
         mRefreshHeight = 170;//默认触发刷新的高度
         mFraction = 2;//默认下拉的速度
-
+        mTouchSlop = ViewConfiguration.get(mContext).getScaledTouchSlop();
         mScroller = new Scroller(mContext,new DecelerateInterpolator());
 
         setOnScrollListener(this);
@@ -88,39 +89,51 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
 //    @Override
 //    public boolean onInterceptTouchEvent(MotionEvent ev) {
 //
-//        boolean intercept = false;
+//        boolean intercept = true;
 //
 //        float x =  ev.getRawX();
 //        float y =  ev.getRawY();
+//        int position = pointToPosition((int) ev.getX(), (int) ev.getY());
 //
+//        if(mDragView != null && mDragView.getDragState()){
+//            mDragView.onDragTouchEvent(ev);
+//        }
 //        switch (ev.getAction()){
+//
 //            case MotionEvent.ACTION_DOWN:
+//                Log.d(TAG, "onInterceptTouchEvent ACTION_DOWN;");
+//
+//                if(mHeadView.getHeadHeight() == 0){
+//                    setAndUpdate(STATE_INIT);
+//                    Log.d(TAG, "setAndUpdate(STATE_INIT);");
+//                    isRefreshing =false;
+//                }
+//                if(position != INVALID_POSITION ){//选中列表中的某一项dragListItem
+//                    DragListItem tmpView = (DragListItem) getItemAtPosition(position);
+//                    if(mDragView!=null && tmpView != mDragView){
+//                        mDragView.rollBack();
+//
+//                    }
+//                    mDragView = tmpView;
+//
+//                }
+//                mPosition = position;
 //                mDownY = ev.getRawY();
+//                mDownX = ev.getRawX();
 //                intercept = false;
 //                break;
 //            case MotionEvent.ACTION_MOVE:
-//                float deltaX = x -mLastX;
-//                float deltaY = y -mLastY;
+//                Log.d(TAG, "onInterceptTouchEvent ACTION_MOVE;");
+//                if(ev.getRawX()-mDownX >mTouchSlop ||ev.getRawY()-mDownY >mTouchSlop){
 //
-//
-//                if( isTop && deltaY <= 0  ){
-//                    return false;
-//                }
-//                //当处于可下拉状态 且 手指向下滑动的时候，拦截事件 ，执行下拉
-//                if(mPullable && Math.abs(deltaY)>Math.abs(deltaX)){
 //                    intercept = true;
 //                }
-//                else{
-//                    intercept = false;
-//                }
-//                break;
 //
 //            default:
 //                break;
 //
 //        }
-//        mLastX = x;
-//        mLastY = y;
+//
 //        return intercept;
 //    }
 
@@ -138,9 +151,11 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
         if(!isDrag){
             switch (event.getAction()){
                 case MotionEvent.ACTION_DOWN:
+                    Log.d(TAG, "ACTION_DOWN;");
                     mDownY = event.getRawY();
                     if(mHeadView.getHeadHeight() == 0){
                         setAndUpdate(STATE_INIT);
+                        Log.d(TAG, "setAndUpdate(STATE_INIT);");
                         isRefreshing =false;
                     }
                     //检测侧滑
@@ -158,9 +173,10 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
                     break;
                 case MotionEvent.ACTION_MOVE:
 
+                    Log.d(TAG, "ACTION_MOVE;");
 
                     int deltaY = (int) (y-mDownY)/mFraction;
-                    //Log.d(TAG,"deltaY---->"+deltaY +"state"+currentState);
+                    Log.d(TAG,"deltaY---->"+deltaY +"y-->"+y +"mdowny->"+mDownY +"state"+currentState);
                     if(getFirstVisiblePosition() == 0
                             && (deltaY>0 || mHeadView.getHeadHeight()>0) ){//listview正好在顶部 或者 已经被往下拉了（考虑往下拉了一点又往回退的情况）
                         isPull = true;
@@ -185,6 +201,7 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
 
                     break;
                 case MotionEvent.ACTION_UP:
+                    Log.d(TAG, "UPUP");
                 default:
                     if(getFirstVisiblePosition() == 0){
 
@@ -269,6 +286,7 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
         if(isDrag){
             return true;
         }
+
         return super.onTouchEvent(event);
     }
 
