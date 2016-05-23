@@ -23,13 +23,13 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
 
     private Context mContext ;
     private HeadView mHeadView;
-    private DragListItem mDragView;
+    private DragListItem mDragView,mLastDragView;
     private Scroller mScroller;
 
 
 
     private boolean isRefreshing = false;
-    private boolean isDrag = false;
+    private boolean isDrag = false,isLastDrag = false;
     private boolean isPull = false;
 
     private float mDownY,mDownX;
@@ -84,58 +84,60 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
     }
 
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+
+        float x =  ev.getRawX();
+        float y =  ev.getRawY();
+        int position = pointToPosition((int) ev.getX(), (int) ev.getY());
+
+        if(mDragView != null && !isPull){//&& !mDragView.getDragState()
+            if(mLastDragView==null){
+
+                mDragView.onDragTouchEvent(ev);
+            }
+            else if(mLastDragView !=null && !mLastDragView.getDragState()){
+
+                mDragView.onDragTouchEvent(ev);
+            }
+        }
+        switch (ev.getAction()){
+
+            case MotionEvent.ACTION_DOWN:
+                Log.d(TAG, "onInterceptTouchEvent ACTION_DOWN;");
+                if (!mScroller.isFinished()) {
+                    mScroller.abortAnimation();
+                }
+                if(mHeadView.getHeadHeight() == 0){
+                    setAndUpdate(STATE_INIT);
+                    Log.d(TAG, "setAndUpdate(STATE_INIT);");
+                    isRefreshing =false;
+                }
+                if(position != INVALID_POSITION ){//选中列表中的某一项dragListItem
+                    DragListItem tmpView = (DragListItem) getItemAtPosition(position);
+                    if(mDragView!=null && tmpView != mDragView){
+                        mLastDragView = mDragView;
+                        mLastDragView.setClickable(true);
+                        mLastDragView.rollBack();
+
+                    }
+                    mDragView = tmpView;
+                    Log.d(TAG, "mdrag"+mDragView+mDragView.getDragState());
+                }
+                mPosition = position;
+                mDownY = ev.getRawY();
+                mDownX = ev.getRawX();
+
+                break;
+
+            default:
+                break;
+
+        }
+        return super.dispatchTouchEvent(ev);
+    }
 
 
-//    @Override
-//    public boolean onInterceptTouchEvent(MotionEvent ev) {
-//
-//        boolean intercept = true;
-//
-//        float x =  ev.getRawX();
-//        float y =  ev.getRawY();
-//        int position = pointToPosition((int) ev.getX(), (int) ev.getY());
-//
-//        if(mDragView != null && mDragView.getDragState()){
-//            mDragView.onDragTouchEvent(ev);
-//        }
-//        switch (ev.getAction()){
-//
-//            case MotionEvent.ACTION_DOWN:
-//                Log.d(TAG, "onInterceptTouchEvent ACTION_DOWN;");
-//
-//                if(mHeadView.getHeadHeight() == 0){
-//                    setAndUpdate(STATE_INIT);
-//                    Log.d(TAG, "setAndUpdate(STATE_INIT);");
-//                    isRefreshing =false;
-//                }
-//                if(position != INVALID_POSITION ){//选中列表中的某一项dragListItem
-//                    DragListItem tmpView = (DragListItem) getItemAtPosition(position);
-//                    if(mDragView!=null && tmpView != mDragView){
-//                        mDragView.rollBack();
-//
-//                    }
-//                    mDragView = tmpView;
-//
-//                }
-//                mPosition = position;
-//                mDownY = ev.getRawY();
-//                mDownX = ev.getRawX();
-//                intercept = false;
-//                break;
-//            case MotionEvent.ACTION_MOVE:
-//                Log.d(TAG, "onInterceptTouchEvent ACTION_MOVE;");
-//                if(ev.getRawX()-mDownX >mTouchSlop ||ev.getRawY()-mDownY >mTouchSlop){
-//
-//                    intercept = true;
-//                }
-//
-//            default:
-//                break;
-//
-//        }
-//
-//        return intercept;
-//    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -148,10 +150,14 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
         int position = pointToPosition((int) event.getX(), (int) event.getY());
         Log.d(TAG,"position"+position);
         Log.d(TAG,"DragView ====>"+mDragView);
+
         if(!isDrag){
             switch (event.getAction()){
                 case MotionEvent.ACTION_DOWN:
                     Log.d(TAG, "ACTION_DOWN;");
+                    if (!mScroller.isFinished()) {
+                        mScroller.abortAnimation();
+                    }
                     mDownY = event.getRawY();
                     if(mHeadView.getHeadHeight() == 0){
                         setAndUpdate(STATE_INIT);
@@ -160,8 +166,11 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
                     }
                     //检测侧滑
 
+                    Log.d(TAG,"t1");
                     if(position != INVALID_POSITION ){//选中列表中的某一项dragListItem
+                        Log.d(TAG,"t2");
                         DragListItem tmpView = (DragListItem) getItemAtPosition(position);
+                        Log.d("TAG","tmpDragView"+tmpView);
                         if(mDragView!=null && tmpView != mDragView){
                             mDragView.rollBack();
 
@@ -178,7 +187,8 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
                     int deltaY = (int) (y-mDownY)/mFraction;
                     Log.d(TAG,"deltaY---->"+deltaY +"y-->"+y +"mdowny->"+mDownY +"state"+currentState);
                     if(getFirstVisiblePosition() == 0
-                            && (deltaY>0 || mHeadView.getHeadHeight()>0) ){//listview正好在顶部 或者 已经被往下拉了（考虑往下拉了一点又往回退的情况）
+                            && (deltaY>0 || mHeadView.getHeadHeight()>0)
+                            && !isDrag){//listview正好在顶部 或者 已经被往下拉了（考虑往下拉了一点又往回退的情况）
                         isPull = true;
 
                         mHeadView.setHeadHeight(deltaY);
@@ -280,6 +290,7 @@ public class PullDragListview extends ListView implements AbsListView.OnScrollLi
         if(!isPull && mDragView != null  ){
             Log.d(TAG,"=====>onDragTouchEvent");
             mDragView.onDragTouchEvent(event);
+            //mDragView.performClick();
             isDrag = mDragView.getDragState();
         }
 

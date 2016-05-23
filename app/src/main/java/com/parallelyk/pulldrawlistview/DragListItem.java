@@ -58,11 +58,25 @@ public class DragListItem extends LinearLayout {
 
     }
 
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        boolean result = super.onTouchEvent(event);
+//
+//        return result;
+//    }
+
     /**
      * 得到传递进来的事件序列。在此进行侧滑逻辑的判断。
      * @param event
      */
     public void onDragTouchEvent(MotionEvent event){
+
+        if(isDrag){
+            setClickable(false);
+        }
+        else {
+            setClickable(true);
+        }
 
         Log.d(TAG,"onDragTouchEvent");
         int x = (int) event.getX();
@@ -70,9 +84,9 @@ public class DragListItem extends LinearLayout {
         int scrollX = getScrollX();//手机屏幕左上角x轴的值 - view的左上角x轴的值
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-//                if (!mScroller.isFinished()) {
-//                    mScroller.abortAnimation();
-//                }
+                if (!mScroller.isFinished()) {
+                    mScroller.abortAnimation();
+                }
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -87,6 +101,7 @@ public class DragListItem extends LinearLayout {
                     int newScrollX = scrollX - deltaX;//当这个值变小时，view视图向左滑动
                     if(newScrollX<0){//保持大于等于0，等于0时view左上角x值和屏幕左上角x值重合
                         newScrollX = 0;
+                        setClickable(true);
                     }
                     else if(newScrollX>mDragOutWidth){//不能再侧滑了
                         newScrollX = mDragOutWidth;
@@ -121,6 +136,7 @@ public class DragListItem extends LinearLayout {
 
 
     private void autoScrollToX(int finalX,int duration){
+
         mScroller.startScroll(getScrollX(),0,finalX-getScrollX(),0,duration);
         invalidate();
     }
@@ -169,6 +185,7 @@ public class DragListItem extends LinearLayout {
     public void rollBack(){
         if(getScrollX() != 0){
             autoScrollToX(0,100);
+            setClickable(true);
             Log.d(TAG,"roooooollback");
 
         }

@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder viewHolder;
+            final ViewHolder viewHolder;
             DragListItem dragListItem = (DragListItem) convertView;
 
             if(dragListItem == null){
@@ -119,11 +119,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             viewHolder.tv_time.setText(hashMap.get("time").toString());
             //HashMap<String,Object> tmpHashMap = new HashMap<>();
             hashMap.put("view", dragListItem);
+            dragListItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Toast.makeText(mContext, "biaoti"+viewHolder.tv_title.getText(), Toast.LENGTH_SHORT).show();
+                }
+            });
 
 //            viewHolder.showItem.setOnTouchListener(new View.OnTouchListener() {//使用OnItemClick或OnClickListener的话会造成冲突
 //                @Override
 //                public boolean onTouch(View v, MotionEvent event) {
-//                    boolean consume = false;
+//                    boolean consume = true;
 //                    float x = 0, y = 0;
 //                    Log.d("aa","in");
 //
@@ -153,8 +160,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 //                            break;
 //
 //                    }
+//                    Log.d("aa","consume"+consume);
 //
-//                    return false;
+//                    return consume;
 //                }
 //            });
             viewHolder.hideItem.setOnClickListener(new View.OnClickListener() {//给显示的Item设置点击事件
