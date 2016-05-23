@@ -3,11 +3,9 @@ package com.parallelyk.pulldrawlistview;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -18,13 +16,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
+/**
+ * https://github.com/parallelyk
+ */
+public class MainActivity extends AppCompatActivity implements PullDragListview.OnRefreshListener{
     private PullDragListview pullDragListview;
     private ListView listView;
     private List<HashMap<String,Object>> mListItem = new ArrayList<HashMap<String,Object>>();
     private MyAdapter adapter ;
-    //ArrayAdapter<String> adapter;
-    //String[] items = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L","A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //listView = (ListView) findViewById(R.id.listview);
         adapter = new MyAdapter(this);
         pullDragListview.setAdapter(adapter);
+        pullDragListview.setOnRefreshListener(this);
     }
     private void initTestData(){
         for (int i = 0 ; i<20 ;i++){
@@ -47,10 +48,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+
+
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Toast.makeText(getApplicationContext(), "点击" , Toast.LENGTH_SHORT).show();
-        Log.d("hhhhhh","hhhhhh");
+    public void onRefresh() {
+
+    }
+
+    @Override
+    public void onFinish() {
+
     }
 
 
@@ -127,44 +134,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
             });
 
-//            viewHolder.showItem.setOnTouchListener(new View.OnTouchListener() {//使用OnItemClick或OnClickListener的话会造成冲突
-//                @Override
-//                public boolean onTouch(View v, MotionEvent event) {
-//                    boolean consume = true;
-//                    float x = 0, y = 0;
-//                    Log.d("aa","in");
-//
-//                    switch (event.getAction()) {
-//                        case MotionEvent.ACTION_DOWN:
-//                            x = event.getX();
-//
-//                            y = event.getY();
-//                            consume = true;
-//
-//                            break;
-//                        case MotionEvent.ACTION_MOVE:
-//                            Log.d("aa","ACTION_MOVE");
-//                            if (Math.abs(event.getX() - x) > ViewConfiguration.get(mContext).getScaledTouchSlop()|| Math.abs(event.getY() - y) > ViewConfiguration.get(mContext).getScaledTouchSlop()) {
-//
-//                                consume = false;
-//                            } else {
-//
-//                                consume = true;
-//                            }
-//                            break;
-//                        case MotionEvent.ACTION_UP:
-//                            Log.d("aa","ACTION_UP");
-//                            if (consume) {
-//                                Toast.makeText(mContext, "hahahhahah", Toast.LENGTH_SHORT).show();
-//                            }
-//                            break;
-//
-//                    }
-//                    Log.d("aa","consume"+consume);
-//
-//                    return consume;
-//                }
-//            });
+
             viewHolder.hideItem.setOnClickListener(new View.OnClickListener() {//给显示的Item设置点击事件
                 @Override
                 public void onClick(View v) {
@@ -195,11 +165,4 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    /**
-     * 放置每一次选中的itemView和数据
-     */
-    class DataHolder{
-        DragListItem dragListItem;
-
-    }
 }

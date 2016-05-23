@@ -1,6 +1,7 @@
 package com.parallelyk.pulldrawlistview;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -10,7 +11,7 @@ import android.widget.Scroller;
 import android.widget.TextView;
 
 /**
- *
+ * https://github.com/parallelyk
  * 侧滑的核心类
  * Created by YK on 2016/5/13.
  */
@@ -26,6 +27,9 @@ public class DragListItem extends LinearLayout {
 
     private int mLastX,mLastY;
     private int mDragOutWidth;//完全侧滑出来的距离
+
+
+
     private double mfraction = 0.75;//触发自动侧滑的临界点
 
     private boolean isDrag = false;
@@ -58,19 +62,14 @@ public class DragListItem extends LinearLayout {
 
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        boolean result = super.onTouchEvent(event);
-//
-//        return result;
-//    }
 
     /**
      * 得到传递进来的事件序列。在此进行侧滑逻辑的判断。
-     * @param event
+     *
      */
-    public void onDragTouchEvent(MotionEvent event){
+    public void onDragTouchEvent(MotionEvent event) {
 
+        Log.d(TAG, "isDrag" + isDrag);
         if(isDrag){
             setClickable(false);
         }
@@ -134,7 +133,19 @@ public class DragListItem extends LinearLayout {
 
     }
 
-
+    /**
+     * 自动回滚到封闭状态
+     */
+    public void rollBack(){
+        if(getScrollX() != 0){
+            autoScrollToX(0,100);
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    setClickable(true);
+                }
+            }, 500);
+        }
+    }
     private void autoScrollToX(int finalX,int duration){
 
         mScroller.startScroll(getScrollX(),0,finalX-getScrollX(),0,duration);
@@ -151,9 +162,6 @@ public class DragListItem extends LinearLayout {
             scrollTo(mScroller.getCurrX(),mScroller.getCurrY());
             postInvalidate();
         }
-
-
-
     }
 
     /**
@@ -181,13 +189,12 @@ public class DragListItem extends LinearLayout {
     public void setContentView(View view){
         mContentView.addView(view);
     }
-
-    public void rollBack(){
-        if(getScrollX() != 0){
-            autoScrollToX(0,100);
-            setClickable(true);
-            Log.d(TAG,"roooooollback");
-
-        }
+    public double getMfraction() {
+        return mfraction;
     }
+
+    public void setMfraction(double mfraction) {
+        this.mfraction = mfraction;
+    }
+
 }
